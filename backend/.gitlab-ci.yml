@@ -1,0 +1,26 @@
+stages:
+    - build
+    - dockerization
+
+maven-build:
+    image: maven:3.6.3-jdk-8
+    stage: build
+    script: 
+      - mvn clean package
+    artifacts:
+         paths:
+             - target/template*.jar      
+    tags:
+        - template
+
+dockerization: 
+    image: docker:18-dind
+    stage: dockerization
+    script:
+        - docker login -u "${Nexus_USER}" -p "${Nexus_PASS}" localhost:8082
+        - docker build -t localhost:8082/template:latest .
+        - docker push localhost:8082/template:latest
+    tags:
+        - template
+
+        
